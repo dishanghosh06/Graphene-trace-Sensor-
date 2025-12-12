@@ -1,0 +1,165 @@
+﻿@using ClinicianDashboard.Models
+@{
+    var patients = ViewBag.Patients as List<Patient> ?? new List<Patient>();
+    var selected = ViewBag.SelectedPatient as Patient;
+}
+
+<h1>Clinician Dashboard</h1>
+
+<!-- ================= PATIENT LIST ================= -->
+<div class="box">
+    <h2>Patient List</h2>
+    <ul>
+        @foreach (var p in patients)
+        {
+            <li>
+                <a href="/Clinician/Index?id=@p.Id">@p.Name</a> — @p.Status
+            </li>
+        }
+    </ul>
+</div>
+
+<!-- ================= SELECTED PATIENT DASHBOARD ================= -->
+@if (selected != null)
+{
+    <div class="box">
+        <h2>Selected Patient Dashboard</h2>
+
+        <p><strong>@selected.Name</strong></p>
+        <p><b>Peak Pressure:</b> @selected.PeakPressure</p>
+        <p><b>Status:</b> @selected.Status</p>
+
+        <!-- ================= UPDATE PATIENT ================= -->
+        <form method="post" action="/Clinician/UpdatePatient">
+            <input type="hidden" name="id" value="@selected.Id" />
+
+            <label>New Status:</label>
+            <input name="status" class="form-control mb-2"
+                   placeholder="Stable / High Pressure / Medicine Given" />
+
+            <label>New Peak Pressure:</label>
+            <input name="pressure" type="number"
+                   class="form-control mb-2"
+                   placeholder="Enter new pressure..." />
+
+            <button type="submit" class="btn btn-primary">Update Patient</button>
+        </form>
+
+        <hr />
+
+        <!-- ================= LIVE HEATMAP ================= -->
+        <h3>Heat Map (Live)</h3>
+
+        <div id="heatmap" class="heatmap-grid"></div>
+
+        <script>
+            const gridSize = 32;
+            const heatmap = document.getElementById("heatmap");
+
+            // Create 1024 heat cells
+            for (let i = 0; i < gridSize * gridSize; i++) {
+                const cell = document.createElement("div");
+                cell.classList.add("heat-cell");
+                heatmap.appendChild(cell);
+            }
+
+            function updateHeatmap() {
+                fetch("/Clinician/GetLatestPressure?id=@selected.Id")
+                    .then(res => res.json())
+                    .then(values => {
+
+                        while (values.length < 1024) values.push(0);
+
+                        document.querySelectorAll(".heat-cell").forEach((cell, i) => {
+                            const p = values[i];
+
+                            if (p >= 180) cell.style.background = "#ff6b6b";
+                            else if (p >= 150) cell.style.background = "#ffa94d";
+                            else if (p >= 120) cell.style.background = "#ffe066";
+                            else cell.style.background = "#8ce99a";
+                        });
+                    });
+            }
+
+            updateHeatmap();
+            setInterval(updateHeatmap, 1000);
+        </script>
+
+        <hr />
+
+        <!-- ================= PRESSURE GRAPH ================= -->
+        <h3>Pressure Trend (Hourly)</h3>
+        <canvas id="pressureChart" width="600" height="250"></canvas>
+
+        <script>
+            let chart;
+
+            function loadGraph() {
+                fetch("/Clinician/GetPressureTrend?id=@selected.Id")
+                    .then(res => res.json())
+                    .then(data => {
+
+                        if (chart) chart.destroy();
+
+                        chart = new Chart(
+                            document.getElementById("pressureChart"), {
+                                type: "line",
+                                data: {
+                                    labels: data.labels,
+                                    datasets: [{
+                                        label: "Average Pressure",
+                                        data: data.values,
+                                        borderWidth: 2,
+                                        tension: 0.3
+                                    }]
+                                }
+                            });
+                    });
+            }
+
+            loadGraph();
+            setInterval(loadGraph, 3600000); // 1 hour
+        </script>
+
+        <hr />
+
+        <!-- ================= ALERTS ================= -->
+        <h3>Alerts</h3>
+        <div id="alertBox" class="alert alert-info"></div>
+
+        <script>
+            function loadAlert() {
+                fetch("/Clinician/GetAlertStatus?id=@selected.Id")
+                    .then(res => res.json())
+                    .then(msg => {
+                        document.getElementById("alertBox").innerText = msg;
+                    });
+            }
+
+            loadAlert();
+            setInterval(loadAlert, 3600000); // 1 hour
+        </script>
+
+        <hr />
+
+        <!-- ================= COMMENTS ================= -->
+        <h3>Patient Comments</h3>
+
+        <form method="post" action="/Clinician/AddComment">
+            <input type="hidden" name="id" value="@selected.Id" />
+
+            <textarea name="commentText"
+                      rows="3"
+                      class="form-control mb-2"
+                      placeholder="Write a note about this patient..."></textarea>
+
+            <button type="submit" class="btn btn-success">Save Comment</button>
+        </form>
+    </div>
+}
+else
+{
+    <div class="box">
+        <h3>Select a patient to view their dashboard.</h3>
+    </div>
+}

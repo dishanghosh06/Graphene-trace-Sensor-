@@ -1,0 +1,180 @@
+/* ===========================
+   BASE / GLOBAL
+=========================== */
+
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+/* Focus styles */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* Floating labels */
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+/* ===========================
+   LOGIN PAGE
+=========================== */
+
+.login-container {
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 30px;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.login-container h2 {
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+.login-container label {
+    float: left;
+    margin: 10px 0 5px;
+    font-weight: 500;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 10px;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.login-btn:hover {
+    background: #357ABD;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+}
+
+/* ===========================
+   DASHBOARD BOXES
+=========================== */
+
+.box {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 6px;
+    background-color: #ffffff;
+}
+
+/* ===========================
+   HEATMAP (TABLE VERSION)
+   (kept for reference)
+=========================== */
+
+.heatmap-table {
+    border-collapse: collapse;
+    margin-top: 10px;
+    min-width: 300px;
+}
+
+.heatmap-table th,
+.heatmap-table td {
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Heatmap colors */
+.heat-low {
+    background-color: #c8f7dc;
+}
+
+.heat-medium {
+    background-color: #fff5a3;
+}
+
+.heat-medhigh {
+    background-color: #ffcc80;
+}
+
+.heat-high {
+    background-color: #ff8a80;
+    color: white;
+}
+
+/* ===========================
+   LIVE HEATMAP (DIV GRID)
+=========================== */
+
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(32, 14px);
+    grid-template-rows: repeat(32, 14px);
+    gap: 2px;
+    margin-top: 15px;
+}
+
+.heat-cell {
+    width: 14px;
+    height: 14px;
+    background-color: #e9ecef; /* default */
+    border-radius: 2px;
+}
+
+/* ===========================
+   COMMENTS
+=========================== */
+
+textarea[name="commentText"] {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-top: 5px;
+    margin-bottom: 8px;
+    resize: vertical;
+}
