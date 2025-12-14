@@ -6,7 +6,7 @@
 
 <h1>Clinician Dashboard</h1>
 
-<!-- ================= PATIENT LIST ================= -->
+<!--PATIENT LIST-->
 <div class="box">
     <h2>Patient List</h2>
     <ul>
@@ -19,7 +19,7 @@
     </ul>
 </div>
 
-<!-- ================= SELECTED PATIENT DASHBOARD ================= -->
+<!--SELECTED PATIENT DASHBOARD -->
 @if (selected != null)
 {
     <div class="box">
@@ -29,7 +29,7 @@
         <p><b>Peak Pressure:</b> @selected.PeakPressure</p>
         <p><b>Status:</b> @selected.Status</p>
 
-        <!-- ================= UPDATE PATIENT ================= -->
+        <!-- UPDATE PATIENT -->
         <form method="post" action="/Clinician/UpdatePatient">
             <input type="hidden" name="id" value="@selected.Id" />
 
@@ -51,7 +51,7 @@
 
         <hr />
 
-        <!-- ================= LIVE HEATMAP ================= -->
+        // Live Heatmap
         <h3>Heat Map (Live)</h3>
         <div id="heatmap" class="heatmap-grid"></div>
 
@@ -71,7 +71,7 @@
                     .then(res => res.json())
                     .then(values => {
 
-                        // Ensure exactly 1024 values
+                        
                         while (values.length < 1024) values.push(0);
 
                         document.querySelectorAll(".heat-cell").forEach((cell, i) => {
@@ -92,7 +92,7 @@
 
         <hr />
 
-        <!-- ================= PRESSURE GRAPH ================= -->
+        <!-- PRESSURE GRAPH -->
         <h3>Pressure Trend (Hourly)</h3>
         <canvas id="pressureChart" width="600" height="250"></canvas>
 
@@ -131,7 +131,7 @@
 
         <hr />
 
-        <!-- ================= ALERTS ================= -->
+        <!--ALERTS -->
         <h3>Alerts</h3>
         <div id="alertBox" class="alert alert-info">Loading...</div>
 
@@ -153,7 +153,7 @@
 
         <hr />
 
-        <!-- ================= COMMENTS ================= -->
+        <!--  COMMENTS -->
         <h3>Patient Comments</h3>
 
         <!-- EXISTING COMMENTS -->

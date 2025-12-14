@@ -7,13 +7,13 @@ namespace ClinicianDashboard.Models
         // Unique patient identifier
         public int Id { get; set; }
 
-        // Patient full name
+        // Taking Patients Full Name 
         public string Name { get; set; } = string.Empty;
 
-        // Current clinical status (Stable, High Pressure, etc.)
+        // Current clinical status of the PAtient  (Stable, High Pressure, etc.)
         public string Status { get; set; } = "Stable";
 
-        // Latest recorded peak pressure value
+
         public int PeakPressure { get; set; }
 
         // CSV filename prefix used to load heatmap data

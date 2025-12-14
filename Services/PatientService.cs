@@ -30,7 +30,7 @@ namespace ClinicianDashboard.Services
             _csvFolder = Path.Combine(env.ContentRootPath, "Data", "CSV");
         }
 
-        // ================= PATIENT ACCESS =================
+        //  PATIENT ACCESS 
 
         public List<Patient> GetPatients() => _patients;
 
@@ -39,7 +39,7 @@ namespace ClinicianDashboard.Services
             return _patients.FirstOrDefault(p => p.Id == id);
         }
 
-        // ================= LIVE HEATMAP =================
+        // LIVE HEATMAP 
         // Cycles through all CSV files for a patient (simulates real-time updates)
         public int[] LoadNextHeatmapValues(string prefix)
         {
@@ -79,7 +79,7 @@ namespace ClinicianDashboard.Services
                 .ToArray();
         }
 
-        // ================= PRESSURE TREND (GRAPH) =================
+        
         // One average pressure value per CSV file
         public List<(string label, double avgPressure)> LoadPressureTrend(string prefix)
         {
@@ -115,7 +115,7 @@ namespace ClinicianDashboard.Services
             return result;
         }
 
-        // ================= ALERT LOGIC =================
+        // ALERT LOGIC 
         public string GetAlertStatus(string prefix)
         {
             var trend = LoadPressureTrend(prefix);
@@ -134,7 +134,7 @@ namespace ClinicianDashboard.Services
             return "Normal";
         }
 
-        // ================= PATIENT UPDATES =================
+        // PATIENT UPDATES
         public void UpdateStatus(int id, string status, int pressure)
         {
             var patient = GetPatient(id);
@@ -150,7 +150,7 @@ namespace ClinicianDashboard.Services
             });
         }
 
-        // ================= COMMENTS =================
+        // COMMENTS
         public void AddComment(int id, string comment)
         {
             var patient = GetPatient(id);

@@ -7,7 +7,6 @@ namespace ClinicianDashboard.Controllers
     
     /// Controller responsible for clinician dashboard functionality.
     /// Handles patient selection, updates, comments, heatmap data,
-    /// pressure trend graph data, and alert status.
     
     public class ClinicianController : Controller
     {
@@ -50,7 +49,7 @@ namespace ClinicianDashboard.Controllers
             return RedirectToAction("Index", new { id });
         }
 
-        /// Returns live heatmap data (32x32 = 1024 values)
+        /// Returns live heatmap data 32 x 32 
         /// Data cycles through CSV files to simulate real-time updates
     
         [HttpGet]
@@ -67,7 +66,7 @@ namespace ClinicianDashboard.Controllers
             return Json(values);
         }
 
-        /// Returns pressure trend data for graph (hourly average)
+        /// Graph of Pressure HOURLY updating 
    
         [HttpGet]
         public IActionResult GetPressureTrend(int id)
@@ -91,7 +90,7 @@ namespace ClinicianDashboard.Controllers
             });
         }
 
-        /// Returns alert message based on latest pressure values
+        /// Will Returns alert message based on latest pressure values
      
         [HttpGet]
         public IActionResult GetAlertStatus(int id)
