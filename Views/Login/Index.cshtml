@@ -2,18 +2,36 @@
     ViewBag.Title = "Clinician Login";
 }
 
+<!-- ================= CLINICIAN LOGIN PAGE ================= -->
 <div class="login-container">
     <h2>Clinician Login</h2>
 
+    <!-- Login form submits credentials to LoginController -->
     <form method="post" action="/Login/Login">
+
+        <!-- Email input -->
         <label>Email</label>
-        <input type="text" name="email" required />
+        <input type="text"
+               name="email"
+               required
+               placeholder="Enter clinician email" />
 
+        <!-- Password input -->
         <label>Password</label>
-        <input type="password" name="password" required />
+        <input type="password"
+               name="password"
+               required
+               placeholder="Enter password" />
 
-        <button type="submit" class="login-btn">Login</button>
+        <!-- Submit button -->
+        <button type="submit" class="login-btn">
+            Login
+        </button>
 
-        <p class="error">@ViewBag.Error</p>
+        <!-- Display error message if login fails -->
+        @if (ViewBag.Error != null)
+        {
+            <p class="error">@ViewBag.Error</p>
+        }
     </form>
 </div>

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ClinicianDashboard")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f13c3af06c4d1b9129a6e82b585a7221bbff0817")]
 [assembly: System.Reflection.AssemblyProductAttribute("ClinicianDashboard")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ClinicianDashboard")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

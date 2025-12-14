@@ -34,29 +34,32 @@
             <input type="hidden" name="id" value="@selected.Id" />
 
             <label>New Status:</label>
-            <input name="status" class="form-control mb-2"
+            <input name="status"
+                   class="form-control mb-2"
                    placeholder="Stable / High Pressure / Medicine Given" />
 
             <label>New Peak Pressure:</label>
-            <input name="pressure" type="number"
+            <input name="pressure"
+                   type="number"
                    class="form-control mb-2"
                    placeholder="Enter new pressure..." />
 
-            <button type="submit" class="btn btn-primary">Update Patient</button>
+            <button type="submit" class="btn btn-primary">
+                Update Patient
+            </button>
         </form>
 
         <hr />
 
         <!-- ================= LIVE HEATMAP ================= -->
         <h3>Heat Map (Live)</h3>
-
         <div id="heatmap" class="heatmap-grid"></div>
 
         <script>
             const gridSize = 32;
             const heatmap = document.getElementById("heatmap");
 
-            // Create 1024 heat cells
+            // Create 32 × 32 = 1024 heatmap cells
             for (let i = 0; i < gridSize * gridSize; i++) {
                 const cell = document.createElement("div");
                 cell.classList.add("heat-cell");
@@ -68,21 +71,23 @@
                     .then(res => res.json())
                     .then(values => {
 
+                        // Ensure exactly 1024 values
                         while (values.length < 1024) values.push(0);
 
                         document.querySelectorAll(".heat-cell").forEach((cell, i) => {
                             const p = values[i];
 
-                            if (p >= 180) cell.style.background = "#ff6b6b";
-                            else if (p >= 150) cell.style.background = "#ffa94d";
-                            else if (p >= 120) cell.style.background = "#ffe066";
-                            else cell.style.background = "#8ce99a";
+                            if (p >= 180) cell.style.background = "#ff6b6b";      // High
+                            else if (p >= 150) cell.style.background = "#ffa94d"; // Medium-high
+                            else if (p >= 120) cell.style.background = "#ffe066"; // Medium
+                            else cell.style.background = "#8ce99a";               // Normal
                         });
-                    });
+                    })
+                    .catch(err => console.log("Heatmap error:", err));
             }
 
             updateHeatmap();
-            setInterval(updateHeatmap, 1000);
+            setInterval(updateHeatmap, 1000); // Live updates
         </script>
 
         <hr />
@@ -102,7 +107,8 @@
                         if (chart) chart.destroy();
 
                         chart = new Chart(
-                            document.getElementById("pressureChart"), {
+                            document.getElementById("pressureChart"),
+                            {
                                 type: "line",
                                 data: {
                                     labels: data.labels,
@@ -113,19 +119,21 @@
                                         tension: 0.3
                                     }]
                                 }
-                            });
-                    });
+                            }
+                        );
+                    })
+                    .catch(err => console.log("Graph error:", err));
             }
 
             loadGraph();
-            setInterval(loadGraph, 3600000); // 1 hour
+            setInterval(loadGraph, 3600000); // Update every 1 hour
         </script>
 
         <hr />
 
         <!-- ================= ALERTS ================= -->
         <h3>Alerts</h3>
-        <div id="alertBox" class="alert alert-info"></div>
+        <div id="alertBox" class="alert alert-info">Loading...</div>
 
         <script>
             function loadAlert() {
@@ -133,11 +141,14 @@
                     .then(res => res.json())
                     .then(msg => {
                         document.getElementById("alertBox").innerText = msg;
+                    })
+                    .catch(() => {
+                        document.getElementById("alertBox").innerText = "Normal";
                     });
             }
 
             loadAlert();
-            setInterval(loadAlert, 3600000); // 1 hour
+            setInterval(loadAlert, 3600000); // Update every 1 hour
         </script>
 
         <hr />
@@ -145,15 +156,34 @@
         <!-- ================= COMMENTS ================= -->
         <h3>Patient Comments</h3>
 
+        <!-- EXISTING COMMENTS -->
+        <ul>
+            @if (selected.Comments.Any())
+            {
+                foreach (var c in selected.Comments)
+                {
+                    <li>@c</li>
+                }
+            }
+            else
+            {
+                <li>No comments yet.</li>
+            }
+        </ul>
+
+        <!-- ADD COMMENT -->
         <form method="post" action="/Clinician/AddComment">
             <input type="hidden" name="id" value="@selected.Id" />
 
             <textarea name="commentText"
                       rows="3"
                       class="form-control mb-2"
-                      placeholder="Write a note about this patient..."></textarea>
+                      placeholder="Write a note about this patient..."
+                      required></textarea>
 
-            <button type="submit" class="btn btn-success">Save Comment</button>
+            <button type="submit" class="btn btn-success">
+                Save Comment
+            </button>
         </form>
     </div>
 }

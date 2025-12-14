@@ -94,3 +94,4 @@ C:\Users\disha\OneDrive\Desktop\Graphene Trace\ClinicianDashboard\obj\Debug\net9
 C:\Users\disha\OneDrive\Desktop\Graphene Trace\ClinicianDashboard\obj\Debug\net9.0\ClinicianDashboard.genruntimeconfig.cache
 C:\Users\disha\OneDrive\Desktop\Graphene Trace\ClinicianDashboard\obj\Debug\net9.0\ref\ClinicianDashboard.dll
 C:\Users\disha\OneDrive\Desktop\Graphene Trace\ClinicianDashboard\obj\Debug\net9.0\compressed\378hlsq824-4qynz5hbag.gz
+C:\Users\disha\OneDrive\Desktop\Graphene Trace\ClinicianDashboard\obj\Debug\net9.0\ClinicianDashboard.sourcelink.json

@@ -1,19 +1,20 @@
-
 using System.Globalization;
 using ClinicianDashboard.Models;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using System.Linq;
 
-
 namespace ClinicianDashboard.Services
 {
     public class PatientService
     {
+        // Folder where all CSV files are stored
         private readonly string _csvFolder;
+
+        // Tracks which CSV file is currently being used per patient (for live heatmap cycling)
         private readonly Dictionary<string, int> _csvIndexTracker = new();
 
-
+        // In-memory patient list (acts as application data store)
         private readonly List<Patient> _patients = new()
         {
             new Patient { Id = 1, Name = "Drake", CsvPrefix = "1c0df777" },
@@ -25,130 +26,137 @@ namespace ClinicianDashboard.Services
 
         public PatientService(IWebHostEnvironment env)
         {
+            // CSV files stored under /Data/CSV
             _csvFolder = Path.Combine(env.ContentRootPath, "Data", "CSV");
         }
 
+        // ================= PATIENT ACCESS =================
+
         public List<Patient> GetPatients() => _patients;
 
-        // ✔ Nullable-safe
         public Patient? GetPatient(int id)
         {
             return _patients.FirstOrDefault(p => p.Id == id);
         }
 
-        //  LOAD NEXT CSV FOR HEATMAP (cycles through files)
-public int[] LoadNextHeatmapValues(string prefix)
-{
-    var files = Directory.GetFiles(_csvFolder, $"{prefix}_*.csv")
-                         .OrderBy(f => f)
-                         .ToList();
-
-    if (files.Count == 0)
-        return Enumerable.Repeat(0, 1024).ToArray();
-
-    // Initialize index if missing
-    if (!_csvIndexTracker.ContainsKey(prefix))
-        _csvIndexTracker[prefix] = 0;
-
-    // Pick next CSV
-    var file = files[_csvIndexTracker[prefix]];
-
-    // Move to next (loop)
-    _csvIndexTracker[prefix] =
-        (_csvIndexTracker[prefix] + 1) % files.Count;
-
-    var values = new List<int>();
-
-    foreach (var line in File.ReadAllLines(file))
-    {
-        foreach (var c in line.Split(','))
+        // ================= LIVE HEATMAP =================
+        // Cycles through all CSV files for a patient (simulates real-time updates)
+        public int[] LoadNextHeatmapValues(string prefix)
         {
-            if (int.TryParse(c, out int v))
-                values.Add(v);
-        }
-    }
+            var files = Directory.GetFiles(_csvFolder, $"{prefix}_*.csv")
+                                 .OrderBy(f => f)
+                                 .ToList();
 
-    // Always return exactly 1024 values
-    return values
-        .Concat(Enumerable.Repeat(0, 1024))
-        .Take(1024)
-        .ToArray();
-}
-// 📈 LOAD PRESSURE TREND (one value per CSV)
-public List<(string label, double avgPressure)> LoadPressureTrend(string prefix)
-{
-    var files = Directory.GetFiles(_csvFolder, $"{prefix}_*.csv")
-                         .OrderBy(f => f)
-                         .ToList();
+            if (!files.Any())
+                return Enumerable.Repeat(0, 1024).ToArray();
 
-    var result = new List<(string, double)>();
+            // Initialize index if first time
+            if (!_csvIndexTracker.ContainsKey(prefix))
+                _csvIndexTracker[prefix] = 0;
 
-    foreach (var file in files)
-    {
-        var values = new List<int>();
+            // Select next CSV file
+            var file = files[_csvIndexTracker[prefix]];
 
-        foreach (var line in File.ReadAllLines(file))
-        {
-            foreach (var c in line.Split(','))
+            // Advance index (loop back when finished)
+            _csvIndexTracker[prefix] =
+                (_csvIndexTracker[prefix] + 1) % files.Count;
+
+            var values = new List<int>();
+
+            foreach (var line in File.ReadAllLines(file))
             {
-                if (int.TryParse(c, out int v) && v > 0)
-                    values.Add(v);
+                foreach (var cell in line.Split(','))
+                {
+                    if (int.TryParse(cell.Trim(), out int v))
+                        values.Add(v);
+                }
             }
+
+            // Always return EXACTLY 1024 values (32×32 grid)
+            return values
+                .Concat(Enumerable.Repeat(0, 1024))
+                .Take(1024)
+                .ToArray();
         }
 
-        if (values.Count == 0) continue;
+        // ================= PRESSURE TREND (GRAPH) =================
+        // One average pressure value per CSV file
+        public List<(string label, double avgPressure)> LoadPressureTrend(string prefix)
+        {
+            var files = Directory.GetFiles(_csvFolder, $"{prefix}_*.csv")
+                                 .OrderBy(f => f)
+                                 .ToList();
 
-        var datePart = Path.GetFileNameWithoutExtension(file).Split('_')[1];
-        double avg = values.Average();
+            var result = new List<(string, double)>();
 
-        result.Add((datePart, avg));
-    }
+            foreach (var file in files)
+            {
+                var values = new List<int>();
 
-    return result;
-}
+                foreach (var line in File.ReadAllLines(file))
+                {
+                    foreach (var cell in line.Split(','))
+                    {
+                        if (int.TryParse(cell.Trim(), out int v) && v > 0)
+                            values.Add(v);
+                    }
+                }
 
+                if (!values.Any())
+                    continue;
 
+                // Extract date from filename
+                var datePart = Path.GetFileNameWithoutExtension(file).Split('_')[1];
+                double average = values.Average();
 
+                result.Add((datePart, average));
+            }
+
+            return result;
+        }
+
+        // ================= ALERT LOGIC =================
+        public string GetAlertStatus(string prefix)
+        {
+            var trend = LoadPressureTrend(prefix);
+
+            if (!trend.Any())
+                return "No Data";
+
+            var latest = trend.Last().avgPressure;
+
+            if (latest >= 180)
+                return "CRITICAL ALERT: Extremely High Pressure";
+
+            if (latest >= 150)
+                return "Warning: High Pressure";
+
+            return "Normal";
+        }
+
+        // ================= PATIENT UPDATES =================
         public void UpdateStatus(int id, string status, int pressure)
         {
-            var p = GetPatient(id);
-            if (p == null) return;
+            var patient = GetPatient(id);
+            if (patient == null) return;
 
-            p.Status = status;
-            p.PeakPressure = pressure;
+            patient.Status = status;
+            patient.PeakPressure = pressure;
 
-            p.PressureHistory.Add(new PressureReading
+            patient.PressureHistory.Add(new PressureReading
             {
                 Label = DateTime.Now.ToShortTimeString(),
                 Pressure = pressure
             });
         }
 
+        // ================= COMMENTS =================
         public void AddComment(int id, string comment)
         {
-            var p = GetPatient(id);
-            if (p == null) return;
+            var patient = GetPatient(id);
+            if (patient == null) return;
 
-            p.Comments.Add(comment);
+            patient.Comments.Add(comment);
         }
-        // 🚨 CHECK ALERT STATUS
-public string GetAlertStatus(string prefix)
-{
-    var trend = LoadPressureTrend(prefix);
-
-    if (!trend.Any())
-        return "No Data";
-
-    var latest = trend.Last().avgPressure;
-
-    if (latest >= 180)
-        return "CRITICAL ALERT: Extremely High Pressure";
-
-    if (latest >= 150)
-        return "Warning: High Pressure";
-
-    return "Normal";
-}
-
     }
 }
